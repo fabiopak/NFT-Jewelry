@@ -12,11 +12,15 @@ contract TokenNFT is TokenNFTStorage, OwnableUpgradeable, ERC721EnumerableUpgrad
 
     function initialize(string memory _name, 
             string memory _symbol, 
-            string memory _baseTokenURI,
+            string memory _imageUri,
+            string memory _metadataName,
+            string memory _metadataDescription,
             address _creatorAddress) public initializer {
         OwnableUpgradeable.__Ownable_init();
         __ERC721_init(_name, _symbol);
-        baseTokenURI = _baseTokenURI;
+        imageUri = _imageUri;
+        metadataName = _metadataName;
+        metadataDescription = _metadataDescription;
         creatorAddress = _creatorAddress;
     }
 
@@ -36,66 +40,50 @@ contract TokenNFT is TokenNFTStorage, OwnableUpgradeable, ERC721EnumerableUpgrad
     }
 
     /**
-    * @dev internal function to get URI base
-    */
-    function _baseURI() internal view override returns (string memory) {
-        return baseTokenURI;
+     * @dev change image URI 
+     * @param _imageURI URI string
+     */
+    function setImageURI(string memory _imageURI) external creatorOnly {
+        imageUri = _imageURI;
     }
 
     /**
-     * @dev Sets `_tokenURI` as the tokenURI of `tokenId`.
-     *
-     * Requirements:
-     *
-     * - `tokenId` must exist.
+     * @dev change collection name
+     * @param _name New name
      */
-    function _setTokenURI(uint256 tokenId, string memory _tokenURI) internal virtual {
-        tokenURIs[tokenId] = _tokenURI;
+    function setMetadataName(string memory _name) external creatorOnly {
+        metadataName = _name;
     }
 
     /**
-     * @dev change token URI for already emitted token id, appending new path to base URI
-     * @param tokenId token ID
-     * @param _tokenURI URI string
+     * @dev change collection description
+     * @param _description New description
      */
-    function setEmittedTokenURI(uint256 tokenId, string memory _tokenURI) external creatorOnly {
-        require(_exists(tokenId), "TokenNFT: URI set of nonexistent token");
-        _setTokenURI(tokenId, _tokenURI);
-    }
-
-    /**
-     * @dev change token URI for not already emitted tokens
-     * @param _newTokenURI URI string
-     */
-    function setNewTokenBaseURI(string memory _newTokenURI) external creatorOnly {
-        baseTokenURI = _newTokenURI;
+    function setMetadataDescription(string memory _description) external creatorOnly {
+        metadataDescription = _description;
     }
 
     /**
      * @dev See {IERC721Metadata-tokenURI}. Read tokenURI in a tokenID
-     * @param tokenId token ID
+     * @param _tokenId token ID
      * @return token URI string
      */
-    function tokenURI(uint256 tokenId) public view override returns (string memory) {
-        // require(_exists(tokenId), "URI query for nonexistent token");
-        if (_exists(tokenId)) {
-            string memory _tokenURI = tokenURIs[tokenId];
-            string memory base = _baseURI();
-
-            // If there is no base URI, return the token URI.
-            if (bytes(base).length == 0) {
-                return _tokenURI;
-            }
-            // If both are set, concatenate the baseURI and tokenURI (via abi.encodePacked).
-            if (bytes(_tokenURI).length > 0) {
-                return string(abi.encodePacked(base, _tokenURI));
-            }
-
-            return super.tokenURI(tokenId);
-        } else {
-            return "";
-        }
+    function tokenURI(uint256 _tokenId) public view override returns (string memory) {
+        require(_exists(_tokenId), "URI query for nonexistent token");
         
+        return string(
+            abi.encodePacked(
+                '{"name":"',
+                metadataName,
+                ' #',
+                _tokenId,
+                '","description":"',
+                metadataDescription,
+                '","image":"',
+                imageUri,
+                '"}'
+            )  
+        );
     }
 
     /**
@@ -131,18 +119,15 @@ contract TokenNFT is TokenNFTStorage, OwnableUpgradeable, ERC721EnumerableUpgrad
         require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721Burnable: caller is not owner nor approved");
         require(exists(tokenId), "TokenNFT: id does not exist");
         
-        if (bytes(tokenURIs[tokenId]).length != 0) {
-            delete tokenURIs[tokenId];
-        }
         _burn(tokenId);
     }
 
     /**
     * @dev function called before any token transfer
     */
-    function _beforeTokenTransfer(address from, address to, uint256 tokenId) internal virtual override {
-        super._beforeTokenTransfer(from, to, tokenId);
-    }
+    // function _beforeTokenTransfer(address from, address to, uint256 tokenId) internal virtual override {
+    //     super._beforeTokenTransfer(from, to, tokenId);
+    // }
 
     /**
      * @dev See {IERC165-supportsInterface}.
