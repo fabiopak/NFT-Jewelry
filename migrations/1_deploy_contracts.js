@@ -3,8 +3,8 @@ const { deployProxy, upgradeProxy } = require('@openzeppelin/truffle-upgrades');
 
 const TokenNFT = artifacts.require("TokenNFT");
 
-const name = 'MinterAutoIDToken';
-const symbol = 'MAIT';
+const name = 'GoldMedals';
+const symbol = 'GMT';
 const baseURI = 'my.app/';
 
 // const ADMIN_ROLE = 'a49807205ce4d355092ef5a8a18f56e8913cf4a201fbe287825b095693c21775'; //keccak256("ADMIN_ROLE");
@@ -26,15 +26,13 @@ module.exports = async (deployer, network, accounts) => {
     const factoryOwner = accounts[0];
 
     if (IS_UPGRADE == 'true') {
-      console.log('contracts are being upgraded');
-      const NFTinstance = await upgradeProxy(TOKEN_FACTORY_NFT, TokenFactoryNFT, { from: factoryOwner });
-      console.log(`New instance deployed: ${TFNFTinstance.address}`)
+      // console.log('contracts are being upgraded');
+      // const NFTinstance = await upgradeProxy(TOKEN_FACTORY_NFT, TokenFactoryNFT, { from: factoryOwner });
     } else {
       // deploy new contract
       try {
-        const NFTinstance = await deployProxy(TokenNFT, [], { from: factoryOwner });
+        const NFTinstance = await deployProxy(TokenNFT, [name, symbol, baseURI, factoryOwner], { from: factoryOwner });
         console.log('NFTinstance Deployed: ', NFTinstance.address);
-        console.log('Is deployer NFTinstance admin: ', await NFTinstance.hasRole(DEFAULT_ADMIN_ROLE, accounts[0]));
       } catch (error) {
         console.log(error);
       }

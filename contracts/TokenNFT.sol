@@ -8,7 +8,7 @@ import "./TokenNFTStorage.sol";
 
 contract TokenNFT is TokenNFTStorage, OwnableUpgradeable, ERC721EnumerableUpgradeable {
     using StringsUpgradeable for uint256;
-    using CountersUpgradeable for CountersUpgradeable.Counter;
+    // using CountersUpgradeable for CountersUpgradeable.Counter;
 
     function initialize(string memory _name, 
             string memory _symbol, 
@@ -77,35 +77,54 @@ contract TokenNFT is TokenNFTStorage, OwnableUpgradeable, ERC721EnumerableUpgrad
      * @return token URI string
      */
     function tokenURI(uint256 tokenId) public view override returns (string memory) {
-        require(_exists(tokenId), "URI query for nonexistent token");
+        // require(_exists(tokenId), "URI query for nonexistent token");
+        if (_exists(tokenId)) {
+            string memory _tokenURI = tokenURIs[tokenId];
+            string memory base = _baseURI();
 
-        string memory _tokenURI = tokenURIs[tokenId];
-        string memory base = _baseURI();
+            // If there is no base URI, return the token URI.
+            if (bytes(base).length == 0) {
+                return _tokenURI;
+            }
+            // If both are set, concatenate the baseURI and tokenURI (via abi.encodePacked).
+            if (bytes(_tokenURI).length > 0) {
+                return string(abi.encodePacked(base, _tokenURI));
+            }
 
-        // If there is no base URI, return the token URI.
-        if (bytes(base).length == 0) {
-            return _tokenURI;
+            return super.tokenURI(tokenId);
+        } else {
+            return "";
         }
-        // If both are set, concatenate the baseURI and tokenURI (via abi.encodePacked).
-        if (bytes(_tokenURI).length > 0) {
-            return string(abi.encodePacked(base, _tokenURI));
-        }
-
-        return super.tokenURI(tokenId);
+        
     }
 
     /**
     * @dev mint a token based on current enumeration and sends it to a recipient, with tokenURI formed by baseURI + counter
     * @param to recipient address
+    * @param _startId minting start id
+    * @param _idAmount amount of consecutive id to mint
     */
-    function mintBatch(address to, uint256 _idAmount) external creatorOnly {
+    function mintBatch(address to, uint256 _startId, uint256 _idAmount) external creatorOnly returns (bool) {
         require(_idAmount > 0, "TokenNFT: amount must be greater than 0");
+        bool elementExistant;
 
         for (uint i = 0; i < _idAmount; i++) {
-            tokenIdTracker.increment();
-            _safeMint(to, tokenIdTracker.current());
+            // tokenIdTracker.increment();
+            // _safeMint(to, tokenIdTracker.current());
+            
+            uint256 idToMint = _startId + i;
+            // check if an id already exists, and mint it or not
+            if (exists(idToMint)) {
+                elementExistant = true;
+                continue;
+            }
+
+            _safeMint(to, idToMint);
         }
+        if (elementExistant)
+            return false;
         
+        return true;        
     }
 
     function burn(uint256 tokenId) external {
@@ -131,21 +150,7 @@ contract TokenNFT is TokenNFTStorage, OwnableUpgradeable, ERC721EnumerableUpgrad
     function supportsInterface(bytes4 interfaceId) public view override returns (bool) {
         return super.supportsInterface(interfaceId);
     }
-/*
-    /**
-     * @dev pause token activities (creatorOnly)
-     */
-/*    function pause() external creatorOnly {
-        _pause();
-    }
 
-    /**
-     * @dev unpause token activities (creatorOnly)
-     */
-/*    function unpause() external creatorOnly {
-        _unpause();
-    }
-*/
     function setCreatorAddress(address _newCreator) external creatorOnly {
         require(_newCreator != address(0), "TokenNFT: new recipient is the zero address");
         creatorAddress = _newCreator;

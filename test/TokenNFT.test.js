@@ -52,22 +52,21 @@ contract('TokenNFT', function (accounts) {
 
   describe('minting', function () {
     it('users can NOT mint tokens', async function () {
-      await expectRevert(nftToken.mintBatch(other1, 1, {from: other1 }), "Not a creator");
+      await expectRevert(nftToken.mintBatch(other1, 0, 1, {from: other1 }), "Not a creator");
     });
 
     it('creator can mint 1 token for other account', async function () {
-      tx = await nftToken.mintBatch(other1, 1, {from: creator });
+      tx = await nftToken.mintBatch(other1, 1, 1, {from: creator });
       expectEvent(tx, 'Transfer', { from: ZERO_ADDRESS, to: other1});
 
       expect(await nftToken.balanceOf(other1)).to.be.bignumber.equal('1');
 
-      currentID = await nftToken.tokenIdTracker();
-      expect(await nftToken.ownerOf(currentID)).to.equal(other1);
-      expect(await nftToken.tokenURI(currentID)).to.equal(baseURI + (currentID));
+      expect(await nftToken.ownerOf(1)).to.be.equal(other1);
+      expect(await nftToken.tokenURI(1)).to.be.equal(baseURI + (1));
     });
 
     it('creator can mint 4 tokens for other2 account', async function () {
-      tx = await nftToken.mintBatch(other2, 4, {from: creator });
+      tx = await nftToken.mintBatch(other2, 2, 4, {from: creator });
       expectEvent(tx, 'Transfer', { from: ZERO_ADDRESS, to: other2});
 
       expect(await nftToken.balanceOf(other2)).to.be.bignumber.equal('4');
@@ -75,8 +74,8 @@ contract('TokenNFT', function (accounts) {
       expect(await nftToken.totalSupply()).to.be.bignumber.equal('5');
 
       for (let i = 2; i < 6; i++) {
-        expect(await nftToken.ownerOf(i)).to.equal(other2);
-        expect(await nftToken.tokenURI(i)).to.equal(baseURI + (i));
+        expect(await nftToken.ownerOf(i)).to.be.equal(other2);
+        expect(await nftToken.tokenURI(i)).to.be.equal(baseURI + (i));
         // console.log(await nftToken.tokenURIs(i));
         // console.log(await nftToken.tokenURI(i));
       }
@@ -104,7 +103,7 @@ contract('TokenNFT', function (accounts) {
 
       expect(await nftToken.balanceOf(other1)).to.be.bignumber.equal('1');
       expect(await nftToken.totalSupply()).to.be.bignumber.equal('4');
-      await expectRevert(nftToken.tokenURI(4), "URI query for nonexistent token");
+      expect(await  nftToken.tokenURI(4)).to.be.equal("");
     });
   });
 
@@ -114,19 +113,22 @@ contract('TokenNFT', function (accounts) {
 
       expect(await nftToken.baseTokenURI()).to.be.equal(baseURI2);
 
-      tx = await nftToken.mintBatch(other1, 1, {from: creator });
+      tx = await nftToken.mintBatch(other1, 5, 1, {from: creator });
+      res = await nftToken.mintBatch.call(other1, 5, 1, {from: creator });
+      expect(res).to.be.false;
+
+      tx = await nftToken.mintBatch(other1, 6, 1, {from: creator });
       expectEvent(tx, 'Transfer', { from: ZERO_ADDRESS, to: other1});
 
       expect(await nftToken.balanceOf(other1)).to.be.bignumber.equal('2');
 
-      currentID = await nftToken.tokenIdTracker();
-      expect(await nftToken.ownerOf(currentID)).to.equal(other1);
-      expect(await nftToken.tokenURI(currentID)).to.equal(baseURI2 + (currentID));
+      expect(await nftToken.ownerOf(6)).to.be.equal(other1);
+      expect(await nftToken.tokenURI(6)).to.be.equal(baseURI2 + (6));
       for (let i = 1; i < 7; i++) {
         if (i != 4) {
           // console.log(await nftToken.tokenURIs(i));
           // console.log(await nftToken.tokenURI(i));
-          expect(await nftToken.tokenURI(i)).to.equal(baseURI2 + (i));
+          expect(await nftToken.tokenURI(i)).to.be.equal(baseURI2 + (i));
         }
       }
     });

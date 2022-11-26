@@ -65,7 +65,7 @@ module.exports = {
           process.env.MUMBAI_PROVIDER,
         ),
       gas: 6000000,
-      // gasPrice: 50000000000,
+      gasPrice: 50000000000,
       network_id: 80001,
       confirmations: 2,
       skipDryRun: true
