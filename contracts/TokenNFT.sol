@@ -69,21 +69,23 @@ contract TokenNFT is TokenNFTStorage, OwnableUpgradeable, ERC721EnumerableUpgrad
      * @return token URI string
      */
     function tokenURI(uint256 _tokenId) public view override returns (string memory) {
-        require(_exists(_tokenId), "URI query for nonexistent token");
-        
-        return string(
-            abi.encodePacked(
-                '{"name":"',
-                metadataName,
-                ' #',
-                _tokenId,
-                '","description":"',
-                metadataDescription,
-                '","image":"',
-                imageUri,
-                '"}'
-            )  
-        );
+        // require(exists(_tokenId), "URI query for nonexistent token");
+        if (exists(_tokenId)) {
+            return string(
+                abi.encodePacked(
+                    '{"name":"',
+                    metadataName,
+                    ' #',
+                    _tokenId,
+                    '","description":"',
+                    metadataDescription,
+                    '","image":"',
+                    imageUri,
+                    '"}'
+                )  
+            );
+        } else 
+            return "";
     }
 
     /**
