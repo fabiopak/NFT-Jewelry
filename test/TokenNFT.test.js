@@ -22,8 +22,8 @@ let nftToken;
 contract('TokenNFT', function (accounts) {
   const [ deployer, creator, other1, other2 ] = accounts;
 
-  const name = 'MinterAutoIDToken';
-  const symbol = 'MAIT';
+  const name = 'GoldMedals';
+  const symbol = 'GMT';
   const baseURI = 'my.app/';
   const baseURI2 = 'my.app2/';
 
