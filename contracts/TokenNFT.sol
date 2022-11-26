@@ -4,6 +4,7 @@ pragma solidity ^0.8.10;
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721EnumerableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/StringsUpgradeable.sol";
 import "./TokenNFTStorage.sol";
 
 contract TokenNFT is TokenNFTStorage, OwnableUpgradeable, ERC721EnumerableUpgradeable {
@@ -70,13 +71,13 @@ contract TokenNFT is TokenNFTStorage, OwnableUpgradeable, ERC721EnumerableUpgrad
      */
     function tokenURI(uint256 _tokenId) public view override returns (string memory) {
         // require(exists(_tokenId), "URI query for nonexistent token");
-        if (exists(_tokenId)) {
+        if (_exists(_tokenId)) {
             return string(
                 abi.encodePacked(
                     '{"name":"',
                     metadataName,
                     ' #',
-                    _tokenId,
+                    StringsUpgradeable.toString(_tokenId),
                     '","description":"',
                     metadataDescription,
                     '","image":"',
@@ -123,13 +124,6 @@ contract TokenNFT is TokenNFTStorage, OwnableUpgradeable, ERC721EnumerableUpgrad
         
         _burn(tokenId);
     }
-
-    /**
-    * @dev function called before any token transfer
-    */
-    // function _beforeTokenTransfer(address from, address to, uint256 tokenId) internal virtual override {
-    //     super._beforeTokenTransfer(from, to, tokenId);
-    // }
 
     /**
      * @dev See {IERC165-supportsInterface}.
