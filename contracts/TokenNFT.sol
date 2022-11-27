@@ -74,7 +74,7 @@ contract TokenNFT is TokenNFTStorage, OwnableUpgradeable, ERC721EnumerableUpgrad
         if (_exists(_tokenId)) {
             return string(
                 abi.encodePacked(
-                    '{"name":"',
+                    'data:application/json;text,{"name":"',
                     metadataName,
                     ' #',
                     StringsUpgradeable.toString(_tokenId),

@@ -22,14 +22,15 @@ module.exports = async (deployer, network, accounts) => {
     
   } else if (network == "mumbai") {
 
-    let { IS_UPGRADE, PROXY_ADMIN_ADDRESS, TOKEN_FACTORY_NFT } = process.env;
+    let { IS_UPGRADE, PROXY_ADMIN_ADDRESS, TOKEN_NFT } = process.env;
 
     const accounts = await web3.eth.getAccounts();
     const factoryOwner = accounts[0];
 
     if (IS_UPGRADE == 'true') {
-      // console.log('contracts are being upgraded');
-      // const NFTinstance = await upgradeProxy(TOKEN_FACTORY_NFT, TokenFactoryNFT, { from: factoryOwner });
+      console.log('contracts are being upgraded');
+      const NFTinstance = await upgradeProxy(TOKEN_NFT, TokenNFT, { from: factoryOwner });
+      console.log('NFTinstance Upgraded: ', NFTinstance.address);
     } else {
       // deploy new contract
       try {
