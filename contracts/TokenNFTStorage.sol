@@ -6,10 +6,8 @@ pragma solidity ^0.8.0;
 contract TokenNFTStorage {
     // CountersUpgradeable.Counter public tokenIdTracker;
 
-    string public baseTokenURI;
-
+    string public imageUri;
+    string public metadataName;
+    string public metadataDescription;
     address public creatorAddress;
-
-    // Optional mapping for token URIs
-    mapping (uint256 => string) public tokenURIs;
 }
